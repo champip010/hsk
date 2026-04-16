@@ -82,6 +82,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .filter-container select {
@@ -103,6 +104,29 @@
             font-family: inherit;
             flex-grow: 1;
             min-width: 150px;
+        }
+
+        .shuffle-btn {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0;
+        }
+
+        .shuffle-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         /* --- App Container --- */
@@ -400,6 +424,7 @@
         </select>
         <input type="text" id="search-filter" placeholder="🔍 Search Chinese, Pinyin, or English..."
             oninput="applyFilter()">
+        <button class="shuffle-btn" onclick="randomizeVocab()" title="Shuffle Order">🔀</button>
     </div>
 
     <div id="app-container">
@@ -571,6 +596,25 @@
             }
         }
 
+        function randomizeVocab() {
+            if (filteredVocab.length === 0) return;
+
+            // Shuffle the active filtered array
+            filteredVocab = shuffle([...filteredVocab]);
+            currentCardIndex = 0;
+
+            // Refresh UI directly to persist shuffle order
+            if (currentMode === 'learn') {
+                loadFlashcard();
+            } else if (currentMode === 'quiz') {
+                score = 0;
+                document.getElementById('score-val').innerText = score;
+                loadQuiz();
+            } else if (currentMode === 'manage') {
+                renderManageTable();
+            }
+        }
+
         // --- Navigation Logic ---
         function switchMode(mode) {
             currentMode = mode;
@@ -584,15 +628,25 @@
             document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('manage-section').style.display = 'none';
 
+            // Use the preserved filteredVocab order (retains random shuffle)
             if (mode === 'learn') {
                 document.getElementById('learn-section').style.display = 'block';
+                loadFlashcard();
             } else if (mode === 'quiz') {
                 document.getElementById('quiz-section').style.display = 'block';
+                score = 0;
+                document.getElementById('score-val').innerText = score;
+                if (filteredVocab.length >= 4) {
+                    loadQuiz();
+                } else {
+                    document.getElementById('quiz-zh').innerHTML = "<span style='font-size:1.2rem; color: #e74c3c;'>Need at least 4 words in this HSK level for a quiz.</span>";
+                    document.getElementById('options-grid').innerHTML = "";
+                    document.getElementById('next-quiz-btn').style.display = 'none';
+                }
             } else if (mode === 'manage') {
                 document.getElementById('manage-section').style.display = 'block';
+                renderManageTable();
             }
-
-            applyFilter();
         }
 
         // --- Flashcard Logic ---
@@ -794,7 +848,7 @@
 
             if (mainIndex > -1) {
                 vocab.splice(mainIndex, 1);
-                saveVocab();
+                saveVocab(); // saveVocab naturally resets the shuffle as it triggers applyFilter()
             }
         }
 
