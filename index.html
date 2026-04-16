@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P6 Chinese Explorer 🇸🇬</title>
+    <!-- Add SheetJS for Excel Import/Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9F9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: white;
+            color: var(--dark);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-active {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .filter-container {
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-container select {
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid #bdc3c7;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* --- App Container --- */
+        #app-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* --- Flashcard Mode --- */
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 0 auto 2rem auto;
+            width: 100%;
+            height: 350px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        .card-front {
+            border: 5px solid var(--secondary);
+        }
+
+        .card-back {
+            background-color: var(--secondary);
+            color: white;
+            transform: rotateY(180deg);
+            border: 5px solid var(--secondary);
+        }
+
+        .chinese-char {
+            font-size: 5rem;
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .pinyin {
+            font-size: 2rem;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .english {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            background-color: var(--accent);
+            color: var(--dark);
+            font-size: 1.2rem;
+            padding: 12px 25px;
+        }
+
+        .btn-audio {
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            padding: 12px 20px;
+            border-radius: 50%;
+        }
+
+        /* --- Quiz Mode --- */
+        #quiz-section {
+            display: none;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .option-btn {
+            background-color: var(--light);
+            border: 2px solid #bdc3c7;
+            font-size: 1.5rem;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .option-btn:hover {
+            border-color: var(--secondary);
+            background-color: #e8f8f5;
+        }
+
+        .correct {
+            background-color: #2ecc71 !important;
+            color: white;
+            border-color: #27ae60 !important;
+        }
+
+        .wrong {
+            background-color: #e74c3c !important;
+            color: white;
+            border-color: #c0392b !important;
+        }
+
+        #score-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 1rem;
+        }
+
+        /* --- Manage Section --- */
+        #manage-section {
+            display: none;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .manage-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .manage-controls input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn,
+        .export-btn {
+            background-color: var(--secondary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: none;
+        }
+
+        .export-btn {
+            background-color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--light);
+        }
+
+        .add-form {
+            display: flex;
+            gap: 5px;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .add-form input,
+        .add-form select {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .del-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🇸🇬 P6 Chinese Explorer</h1>
+        <p>Master your vocabulary for school!</p>
+    </header>
+
+    <div class="nav-buttons">
+        <button id="btn-learn" class="btn-active" onclick="switchMode('learn')">📚 Learn</button>
+        <button id="btn-quiz" onclick="switchMode('quiz')">🎮 Quiz</button>
+        <button id="btn-manage" onclick="switchMode('manage')">⚙️ Manage</button>
+    </div>
+
+    <div class="filter-container">
+        <label for="hsk-filter"><strong>HSK Level:</strong></label>
+        <select id="hsk-filter" onchange="applyFilter()">
+            <option value="All">All Words</option>
+            <option value="1">HSK 1</option>
+            <option value="2">HSK 2</option>
+            <option value="3">HSK 3</option>
+            <option value="4">HSK 4</option>
+            <option value="5">HSK 5</option>
+        </select>
+    </div>
+
+    <div id="app-container">
+
+        <!-- Flashcard Section -->
+        <div id="learn-section">
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <h2 class="chinese-char" id="fc-zh">学校</h2>
+                        <p class="pinyin" id="fc-py">xuéxiào</p>
+                        <p style="font-size: 0.9rem; color: #aaa; position: absolute; bottom: 20px;">Click to flip</p>
+                    </div>
+                    <div class="card-face card-back">
+                        <h2 class="english" id="fc-en">School</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-action" onclick="prevCard()">⬅️ Prev</button>
+                <button class="btn-audio" onclick="playAudio()" title="Listen">🔊</button>
+                <button class="btn-action" onclick="nextCard()">Next ➡️</button>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section">
+            <h2 class="question">What is the meaning of <br><span id="quiz-zh"
+                    style="color: var(--primary); font-size: 3rem;"></span> ?</h2>
+            <div class="options-grid" id="options-grid">
+                <!-- Buttons injected via JS -->
+            </div>
+            <div id="score-display">Score: <span id="score-val">0</span></div>
+            <button class="btn-action" style="margin-top: 2rem; display: none;" id="next-quiz-btn"
+                onclick="loadQuiz()">Next Question ➡️</button>
+        </div>
+
+        <!-- Manage Section -->
+        <div id="manage-section">
+            <h2 style="margin-top: 0;">Manage Vocabulary</h2>
+
+            <div id="msg-box"
+                style="display:none; padding: 10px; margin-bottom: 10px; border-radius: 5px; color: white; font-weight: bold; text-align: center;">
+            </div>
+
+            <div class="manage-controls">
+                <label class="file-upload-btn">
+                    📂 Import Excel
+                    <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" onchange="importExcel(event)">
+                </label>
+                <button class="export-btn" onclick="exportExcel()">💾 Export Excel</button>
+            </div>
+            <p style="font-size: 0.8rem; color: #7f8c8d; margin-top: -10px;">Excel columns needed:
+                <strong>Chinese</strong>, <strong>Pinyin</strong>, <strong>English</strong>, and optionally
+                <strong>HSK</strong>.
+            </p>
+
+            <div class="add-form">
+                <input type="text" id="new-zh" placeholder="Chinese (e.g. 读书)">
+                <input type="text" id="new-py" placeholder="Pinyin (dúshū)">
+                <input type="text" id="new-en" placeholder="English (Read)">
+                <select id="new-hsk">
+                    <option value="1">HSK 1</option>
+                    <option value="2">HSK 2</option>
+                    <option value="3">HSK 3</option>
+                    <option value="4">HSK 4</option>
+                    <option value="5">HSK 5</option>
+                </select>
+                <button class="add-btn" onclick="addVocab()">Add</button>
+            </div>
+
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table id="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>Chinese</th>
+                            <th>Pinyin</th>
+                            <th>English</th>
+                            <th>HSK</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vocab-tbody">
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Vocabulary Database
+        let defaultVocab = [
+            { zh: "学校", py: "xuéxiào", en: "School", hsk: 1 },
+            { zh: "朋友", py: "péngyǒu", en: "Friend", hsk: 1 },
+            { zh: "食堂", py: "shítáng", en: "Canteen", hsk: 2 },
+            { zh: "老师", py: "lǎoshī", en: "Teacher", hsk: 1 },
+            { zh: "喜欢", py: "xǐhuān", en: "To like", hsk: 1 },
+            { zh: "学习", py: "xuéxí", en: "To study", hsk: 1 },
+            { zh: "快乐", py: "kuàilè", en: "Happy", hsk: 2 },
+            { zh: "考试", py: "kǎoshì", en: "Exam", hsk: 2 },
+            { zh: "电脑", py: "diànnǎo", en: "Computer", hsk: 2 },
+            { zh: "运动", py: "yùndòng", en: "Sports", hsk: 2 }
+        ];
+
+        // Load from LocalStorage or use default
+        let vocab = JSON.parse(localStorage.getItem('nammon_chinese_vocab')) || defaultVocab;
+        let filteredVocab = [...vocab];
+
+        let currentCardIndex = 0;
+        let score = 0;
+        let currentQuizAnswer = "";
+        let currentMode = 'learn';
+
+        function saveVocab() {
+            localStorage.setItem('nammon_chinese_vocab', JSON.stringify(vocab));
+            applyFilter(); // Re-apply filter and re-render current view
+        }
+
+        function applyFilter() {
+            const hskFilter = document.getElementById('hsk-filter').value;
+
+            if (hskFilter === 'All') {
+                filteredVocab = [...vocab];
+            } else {
+                filteredVocab = vocab.filter(v => String(v.hsk) === hskFilter);
+            }
+
+            currentCardIndex = 0;
+
+            // Refresh UI based on current mode
+            if (currentMode === 'learn') {
+                loadFlashcard();
+            } else if (currentMode === 'quiz') {
+                score = 0;
+                document.getElementById('score-val').innerText = score;
+                if (filteredVocab.length >= 4) {
+                    loadQuiz();
+                } else {
+                    document.getElementById('quiz-zh').innerHTML = "<span style='font-size:1.2rem; color: #e74c3c;'>Need at least 4 words in this HSK level for a quiz.</span>";
+                    document.getElementById('options-grid').innerHTML = "";
+                    document.getElementById('next-quiz-btn').style.display = 'none';
+                }
+            } else if (currentMode === 'manage') {
+                renderManageTable();
+            }
+        }
+
+        // --- Navigation Logic ---
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-learn').classList.remove('btn-active');
+            document.getElementById('btn-quiz').classList.remove('btn-active');
+            document.getElementById('btn-manage').classList.remove('btn-active');
+
+            document.getElementById('btn-' + mode).classList.add('btn-active');
+
+            document.getElementById('learn-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('manage-section').style.display = 'none';
+
+            if (mode === 'learn') {
+                document.getElementById('learn-section').style.display = 'block';
+            } else if (mode === 'quiz') {
+                document.getElementById('quiz-section').style.display = 'block';
+            } else if (mode === 'manage') {
+                document.getElementById('manage-section').style.display = 'block';
+            }
+
+            applyFilter();
+        }
+
+        // --- Flashcard Logic ---
+        function loadFlashcard() {
+            const card = document.getElementById('flashcard');
+            card.classList.remove('is-flipped');
+
+            setTimeout(() => {
+                if (filteredVocab.length === 0) {
+                    document.getElementById('fc-zh').innerText = "Empty";
+                    document.getElementById('fc-py').innerText = "-";
+                    document.getElementById('fc-en').innerText = "No words for this filter.";
+                    return;
+                }
+
+                if (currentCardIndex >= filteredVocab.length) currentCardIndex = 0;
+
+                document.getElementById('fc-zh').innerText = filteredVocab[currentCardIndex].zh;
+                document.getElementById('fc-py').innerText = filteredVocab[currentCardIndex].py;
+                document.getElementById('fc-en').innerText = filteredVocab[currentCardIndex].en;
+            }, 150);
+        }
+
+        function flipCard() {
+            if (filteredVocab.length > 0) document.getElementById('flashcard').classList.toggle('is-flipped');
+        }
+
+        function nextCard() {
+            if (filteredVocab.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % filteredVocab.length;
+            loadFlashcard();
+        }
+
+        function prevCard() {
+            if (filteredVocab.length === 0) return;
+            currentCardIndex = (currentCardIndex - 1 + filteredVocab.length) % filteredVocab.length;
+            loadFlashcard();
+        }
+
+        function playAudio() {
+            if (filteredVocab.length === 0) return;
+            const text = filteredVocab[currentCardIndex].zh;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Quiz Logic ---
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuiz() {
+            if (filteredVocab.length < 4) return;
+            document.getElementById('next-quiz-btn').style.display = 'none';
+
+            const qIndex = Math.floor(Math.random() * filteredVocab.length);
+            const question = filteredVocab[qIndex];
+            currentQuizAnswer = question.en;
+
+            document.getElementById('quiz-zh').innerText = question.zh;
+
+            let options = [question.en];
+            while (options.length < 4) {
+                let randomOpt = filteredVocab[Math.floor(Math.random() * filteredVocab.length)].en;
+                if (!options.includes(randomOpt)) {
+                    options.push(randomOpt);
+                }
+            }
+            options = shuffle(options);
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = "";
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btn, selected) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selected === currentQuizAnswer) {
+                btn.classList.add('correct');
+                score += 10;
+                document.getElementById('score-val').innerText = score;
+                playFeedback(true);
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => {
+                    if (b.innerText === currentQuizAnswer) {
+                        b.classList.add('correct');
+                    }
+                });
+                playFeedback(false);
+            }
+
+            document.getElementById('next-quiz-btn').style.display = 'inline-block';
+        }
+
+        function playFeedback(isCorrect) {
+            const utterance = new SpeechSynthesisUtterance(isCorrect ? "Very good!" : "Try again next time.");
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Manage Logic (Excel & CRUD) ---
+        function showMessage(msg, isError = false) {
+            const msgBox = document.getElementById('msg-box');
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = isError ? '#e74c3c' : '#2ecc71';
+            msgBox.innerText = msg;
+            setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
+        }
+
+        function renderManageTable() {
+            const tbody = document.getElementById('vocab-tbody');
+            tbody.innerHTML = "";
+            filteredVocab.forEach((v, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${v.zh}</td>
+                    <td>${v.py}</td>
+                    <td>${v.en}</td>
+                    <td>${v.hsk}</td>
+                    <td><button class="del-btn" onclick="deleteVocab(${index})">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addVocab() {
+            const zh = document.getElementById('new-zh').value.trim();
+            const py = document.getElementById('new-py').value.trim();
+            const en = document.getElementById('new-en').value.trim();
+            const hsk = document.getElementById('new-hsk').value;
+
+            if (zh && py && en) {
+                vocab.unshift({ zh, py, en, hsk: parseInt(hsk) }); // Add to top of main array
+                saveVocab();
+                document.getElementById('new-zh').value = "";
+                document.getElementById('new-py').value = "";
+                document.getElementById('new-en').value = "";
+                showMessage("Vocabulary added successfully!");
+            } else {
+                showMessage("Please fill in all 3 fields (Chinese, Pinyin, English).", true);
+            }
+        }
+
+        function deleteVocab(indexInFiltered) {
+            const itemToDelete = filteredVocab[indexInFiltered];
+            const mainIndex = vocab.indexOf(itemToDelete);
+
+            if (mainIndex > -1) {
+                vocab.splice(mainIndex, 1);
+                saveVocab();
+            }
+        }
+
+        function importExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+
+                    let newVocab = [];
+                    json.forEach(row => {
+                        const zhKey = Object.keys(row).find(k => k.toLowerCase().includes('chinese') || k.toLowerCase() === 'zh');
+                        const pyKey = Object.keys(row).find(k => k.toLowerCase().includes('pinyin') || k.toLowerCase() === 'py');
+                        const enKey = Object.keys(row).find(k => k.toLowerCase().includes('english') || k.toLowerCase() === 'en');
+                        const hskKey = Object.keys(row).find(k => k.toLowerCase().includes('hsk') || k.toLowerCase().includes('level'));
+
+                        if (row[zhKey] && row[enKey]) {
+                            // Extract numbers from HSK column or default to 1
+                            let hskLevel = 1;
+                            if (row[hskKey]) {
+                                const parsedHsk = parseInt(String(row[hskKey]).replace(/\D/g, ''));
+                                if (!isNaN(parsedHsk)) hskLevel = parsedHsk;
+                            }
+
+                            newVocab.push({
+                                zh: row[zhKey],
+                                py: row[pyKey] || "",
+                                en: row[enKey],
+                                hsk: hskLevel
+                            });
+                        }
+                    });
+
+                    if (newVocab.length > 0) {
+                        vocab = newVocab;
+                        document.getElementById('hsk-filter').value = 'All'; // Reset filter on new import
+                        saveVocab();
+                        document.getElementById('excel-file').value = "";
+                        showMessage(`Successfully imported ${newVocab.length} words!`);
+                    } else {
+                        showMessage("No valid vocabulary found. Check your column headers.", true);
+                    }
+                } catch (error) {
+                    showMessage("Error reading file. Make sure it's a valid Excel or CSV.", true);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportExcel() {
+            if (filteredVocab.length === 0) {
+                showMessage("No vocabulary to export.", true);
+                return;
+            }
+            const exportData = filteredVocab.map(v => ({
+                Chinese: v.zh,
+                Pinyin: v.py,
+                English: v.en,
+                HSK: v.hsk
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Vocabulary");
+
+            XLSX.writeFile(workbook, "Nammon_Chinese_Vocab.xlsx");
+        }
+
+        // Initialize App
+        applyFilter();
+    </script>
+</body>
+
+</html>
