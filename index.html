@@ -37,7 +37,6 @@
         </select>
         <input type="text" id="search-filter" placeholder="🔍 Search Chinese, Pinyin, or English..."
             oninput="applyFilter()">
-        <button class="shuffle-btn" onclick="randomizeVocab()" title="Shuffle Order">🔀</button>
     </div>
 
     <div id="app-container">
@@ -59,6 +58,7 @@
 
             <div class="controls">
                 <button class="btn-action" onclick="prevCard()">⬅️ Prev</button>
+                <button class="shuffle-btn" onclick="randomizeVocab()" title="Shuffle Order">🔀</button>
                 <button class="btn-audio" onclick="playAudio()" title="Listen">🔊</button>
                 <button class="btn-action" onclick="nextCard()">Next ➡️</button>
             </div>
@@ -82,23 +82,13 @@
                 style="display:none; padding: 10px; margin-bottom: 10px; border-radius: 5px; color: white; font-weight: bold; text-align: center;">
             </div>
 
+            <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv"
+                style="display: none;" onchange="onImportFileSelected(event)">
             <div class="manage-controls">
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <label class="file-upload-btn" title="Add new words. Skips duplicates.">
-                        📥 Merge Excel
-                        <input type="file" accept=".xlsx, .xls, .csv" onchange="importExcel(event, 'merge')">
-                    </label>
-                    <label class="file-upload-btn" style="background-color: #e67e22;"
-                        title="Update the selected Excel file with your web words.">
-                        🔄 Sync to Excel
-                        <input type="file" accept=".xlsx, .xls, .csv" onchange="importExcel(event, 'sync-to-excel')">
-                    </label>
-                </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="export-btn" onclick="exportExcel()">💾 Export Excel</button>
-                    <button id="delete-all-btn" class="del-btn" style="padding: 8px 15px; font-size: 0.9rem;"
-                        onclick="deleteAllVocab()">🗑️ Delete All (Web)</button>
-                </div>
+                <button class="file-upload-btn" onclick="document.getElementById('import-file-input').click()">📥 Import Excel</button>
+                <button class="export-btn" onclick="exportExcel()">💾 Export Excel</button>
+                <button id="delete-all-btn" class="delete-all-btn"
+                    onclick="deleteAllVocab()">🗑️ Delete All (Web)</button>
             </div>
             <p style="font-size: 0.8rem; color: #7f8c8d; margin-top: -10px;">Excel columns required:
                 <strong>Chinese</strong> and <strong>English</strong>. (Optional: Pinyin, HSK).
@@ -120,15 +110,38 @@
                 <button class="add-btn" onclick="addVocab()">Add</button>
             </div>
 
-            <div style="max-height: 400px; overflow-y: auto;">
-                <table id="vocab-table">
+            <div class="manage-filter">
+                <input type="text" id="manage-search" placeholder="🔍 Search..."
+                    oninput="renderManageTable()">
+                <select id="manage-hsk-filter" onchange="renderManageTable()">
+                    <option value="All">All HSK</option>
+                    <option value="1">HSK 1</option>
+                    <option value="2">HSK 2</option>
+                    <option value="3">HSK 3</option>
+                    <option value="4">HSK 4</option>
+                    <option value="5">HSK 5</option>
+                    <option value="79">HSK 7-9</option>
+                </select>
+                <select id="manage-sort-field" onchange="renderManageTable()">
+                    <option value="none">Sort by...</option>
+                    <option value="zh">Chinese</option>
+                    <option value="py">Pinyin</option>
+                    <option value="en">English</option>
+                    <option value="hsk">HSK</option>
+                </select>
+                <button class="sort-dir-btn" id="manage-sort-dir" onclick="toggleSortDir()" title="Toggle sort direction">↑ Asc</button>
+                <span class="manage-count" id="manage-count"></span>
+            </div>
+
+            <div class="table-scroll">
+                <table id="vocab-table" style="width: calc(100% - 2px);">
                     <thead>
                         <tr>
                             <th>Chinese</th>
                             <th>Pinyin</th>
                             <th>English</th>
                             <th>HSK</th>
-                            <th>Action</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="vocab-tbody"></tbody>
@@ -136,6 +149,25 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Import Mode Modal -->
+    <div class="modal-overlay" id="import-modal" style="display: none;">
+        <div class="modal">
+            <h3>How do you want to import?</h3>
+            <p class="modal-desc">Choose how to handle the imported words:</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-merge" onclick="confirmImport('merge')">
+                    🔀 Merge
+                    <span class="modal-btn-hint">Add new words, skip duplicates</span>
+                </button>
+                <button class="modal-btn modal-btn-replace" onclick="confirmImport('replace')">
+                    🔄 Replace
+                    <span class="modal-btn-hint">Remove all current words first</span>
+                </button>
+            </div>
+            <button class="modal-cancel" onclick="cancelImport()">Cancel</button>
+        </div>
     </div>
 
     <script src="app.js"></script>
