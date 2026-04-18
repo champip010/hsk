@@ -530,18 +530,7 @@
 
     <script>
         // Vocabulary Database
-        let defaultVocab = [
-            { zh: "学校", py: "xuéxiào", en: "School", hsk: 1 },
-            { zh: "朋友", py: "péngyǒu", en: "Friend", hsk: 1 },
-            { zh: "食堂", py: "shítáng", en: "Canteen", hsk: 2 },
-            { zh: "老师", py: "lǎoshī", en: "Teacher", hsk: 1 },
-            { zh: "喜欢", py: "xǐhuān", en: "To like", hsk: 1 },
-            { zh: "学习", py: "xuéxí", en: "To study", hsk: 1 },
-            { zh: "快乐", py: "kuàilè", en: "Happy", hsk: 2 },
-            { zh: "考试", py: "kǎoshì", en: "Exam", hsk: 2 },
-            { zh: "电脑", py: "diànnǎo", en: "Computer", hsk: 2 },
-            { zh: "运动", py: "yùndòng", en: "Sports", hsk: 2 }
-        ];
+        let defaultVocab = [];
 
         // Load from LocalStorage or use default
         let vocab = JSON.parse(localStorage.getItem('nammon_chinese_vocab')) || defaultVocab;
