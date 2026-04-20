@@ -42,11 +42,11 @@ function applyFilter() {
   } else if (currentMode === "quiz") {
     score = 0;
     document.getElementById("score-val").innerText = score;
-    if (filteredVocab.length >= 4) {
+    if (filteredVocab.length >= 2) {
       loadQuiz();
     } else {
       document.getElementById("quiz-zh").innerHTML =
-        "<span style='font-size:1.2rem; color: #e74c3c;'>Need at least 4 words in this HSK level for a quiz.</span>";
+        "<span style='font-size:1.2rem; color: #e74c3c;'>Need at least 2 words in this HSK level for a quiz.</span>";
       document.getElementById("options-grid").innerHTML = "";
       document.getElementById("next-quiz-btn").style.display = "none";
     }
@@ -139,6 +139,13 @@ function loadFlashcard() {
       zhElem.style.fontSize = "5rem";
     }
 
+    const hidePinyin = document.getElementById("hide-pinyin-toggle")?.checked;
+    if (hidePinyin) {
+      pyElem.style.visibility = "hidden";
+    } else {
+      pyElem.style.visibility = "visible";
+    }
+
     if (enText.length > 60) {
       enElem.style.fontSize = "1.5rem";
     } else if (enText.length > 30) {
@@ -152,7 +159,30 @@ function loadFlashcard() {
 }
 
 function flipCard() {
-  if (filteredVocab.length > 0) document.getElementById("flashcard").classList.toggle("is-flipped");
+  if (filteredVocab.length > 0) {
+    const card = document.getElementById("flashcard");
+    card.classList.toggle("is-flipped");
+    
+    const pyElem = document.getElementById("fc-py");
+    if (document.getElementById("hide-pinyin-toggle")?.checked) {
+      if (card.classList.contains("is-flipped")) {
+        pyElem.style.visibility = "visible";
+      } else {
+        pyElem.style.visibility = "hidden";
+      }
+    }
+  }
+}
+
+function togglePinyinVisibility() {
+  const hidePinyin = document.getElementById("hide-pinyin-toggle").checked;
+  const pyElem = document.getElementById("fc-py");
+  const card = document.getElementById("flashcard");
+  if (hidePinyin && !card.classList.contains("is-flipped")) {
+    pyElem.style.visibility = "hidden";
+  } else {
+    pyElem.style.visibility = "visible";
+  }
 }
 
 function nextCard() {
@@ -186,7 +216,7 @@ function shuffle(array) {
 }
 
 function loadQuiz() {
-  if (filteredVocab.length < 4) return;
+  if (filteredVocab.length < 2) return;
   document.getElementById("next-quiz-btn").style.display = "none";
 
   const qIndex = Math.floor(Math.random() * filteredVocab.length);
@@ -196,11 +226,20 @@ function loadQuiz() {
   document.getElementById("quiz-zh").innerText = question.zh;
 
   let options = [question.en];
-  while (options.length < 4) {
-    let randomOpt = filteredVocab[Math.floor(Math.random() * filteredVocab.length)].en;
+  
+  let sameHskOther = filteredVocab.filter(v => v.hsk === question.hsk && v.en !== question.en).map(v => v.en);
+  let allOther = filteredVocab.filter(v => v.en !== question.en).map(v => v.en);
+  
+  const numOptions = Math.min(4, filteredVocab.length);
+  let attempts = 0;
+
+  while (options.length < numOptions && attempts < 50) {
+    let pool = (sameHskOther.length >= numOptions - 1) ? sameHskOther : allOther;
+    let randomOpt = pool[Math.floor(Math.random() * pool.length)];
     if (!options.includes(randomOpt)) {
       options.push(randomOpt);
     }
+    attempts++;
   }
   options = shuffle(options);
 
@@ -563,5 +602,31 @@ function exportExcel() {
   );
 })();
 
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-theme");
+  const isDark = document.body.classList.contains("dark-theme");
+  localStorage.setItem("hsk_dark_mode", isDark);
+  document.getElementById("btn-dark-mode").innerText = isDark ? "☀️ Theme" : "🌙 Theme";
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+
+  if (currentMode === "learn") {
+    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "ArrowDown") {
+      e.preventDefault();
+      flipCard();
+    } else if (e.code === "ArrowLeft") {
+      prevCard();
+    } else if (e.code === "ArrowRight") {
+      nextCard();
+    }
+  }
+});
+
 // Initialize App
+if (localStorage.getItem("hsk_dark_mode") === "true") {
+  document.body.classList.add("dark-theme");
+  document.getElementById("btn-dark-mode").innerText = "☀️ Theme";
+}
 applyFilter();

@@ -11,6 +11,10 @@
 
 <body>
 
+    <div style="position: absolute; top: 15px; right: 20px; z-index: 100;">
+        <button id="btn-dark-mode" onclick="toggleDarkMode()">🌙 Theme</button>
+    </div>
+
     <header>
         <h1>🇸🇬 P6 Chinese Explorer</h1>
         <p>Master your vocabulary for school!</p>
@@ -32,7 +36,7 @@
             <option value="3">HSK 3</option>
             <option value="4">HSK 4</option>
             <option value="5">HSK 5</option>
-            <option value="5">HSK 6</option>
+            <option value="6">HSK 6</option>
             <option value="79">HSK 7-9</option>
         </select>
         <input type="text" id="search-filter" placeholder="🔍 Search Chinese, Pinyin, or English..."
@@ -57,10 +61,16 @@
             </div>
 
             <div class="controls">
-                <button class="btn-action" onclick="prevCard()">⬅️ Prev</button>
+                <button class="btn-action" onclick="prevCard()" title="Left Arrow">⬅️ Prev</button>
                 <button class="shuffle-btn" onclick="randomizeVocab()" title="Shuffle Order">🔀</button>
                 <button class="btn-audio" onclick="playAudio()" title="Listen">🔊</button>
-                <button class="btn-action" onclick="nextCard()">Next ➡️</button>
+                <button class="btn-action" onclick="nextCard()" title="Right Arrow">Next ➡️</button>
+            </div>
+            <div class="toggle-container" style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <label style="cursor:pointer; display:flex; align-items:center; gap: 8px; font-weight: bold;">
+                    <input type="checkbox" id="hide-pinyin-toggle" onchange="togglePinyinVisibility()"> 
+                    Hide Pinyin
+                </label>
             </div>
         </div>
 
@@ -104,7 +114,7 @@
                     <option value="3">HSK 3</option>
                     <option value="4">HSK 4</option>
                     <option value="5">HSK 5</option>
-                    <option value="5">HSK 6</option>
+                    <option value="6">HSK 6</option>
                     <option value="79">HSK 7-9</option>
                 </select>
                 <button class="add-btn" onclick="addVocab()">Add</button>
@@ -120,6 +130,7 @@
                     <option value="3">HSK 3</option>
                     <option value="4">HSK 4</option>
                     <option value="5">HSK 5</option>
+                    <option value="6">HSK 6</option>
                     <option value="79">HSK 7-9</option>
                 </select>
                 <select id="manage-sort-field" onchange="renderManageTable()">

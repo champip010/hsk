@@ -2,20 +2,47 @@
     --primary: #FF6B6B;
     --secondary: #4ECDC4;
     --accent: #FFE66D;
-    --dark: #2C3E50;
-    --light: #F7F9F9;
+    
+    --bg-main: #f4f7f6;
+    --bg-card: rgba(255, 255, 255, 0.85); /* Glassmorphism */
+    --bg-solid: #ffffff;
+    --bg-elevated: #f8fdfc;
+    --text-main: #2C3E50;
+    --text-muted: #7f8c8d;
+    --border-color: #bdc3c7;
+    --shadow-color: rgba(31, 38, 135, 0.1);
+    --shadow-hover: rgba(31, 38, 135, 0.2);
+    --blur: blur(10px);
+}
+
+body.dark-theme {
+    --primary: #ff5252;
+    --secondary: #3aa39b;
+    --accent: #FFD166;
+    
+    --bg-main: #121212;
+    --bg-card: rgba(30, 30, 36, 0.85);
+    --bg-solid: #1e1e24;
+    --bg-elevated: #282830;
+    --text-main: #f5f6fa;
+    --text-muted: #a4b0be;
+    --border-color: #40404a;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-hover: rgba(0, 0, 0, 0.7);
+    --blur: blur(12px);
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--light);
-    color: var(--dark);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 header {
@@ -47,10 +74,14 @@ button {
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    background-color: white;
-    color: var(--dark);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+    background-color: var(--bg-solid);
+    color: var(--text-main);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+button:active {
+    transform: scale(0.95);
 }
 
 button:hover {
@@ -65,10 +96,12 @@ button:hover {
 
 .filter-container {
     margin-bottom: 1.5rem;
-    background: white;
+    background: var(--bg-card);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
     padding: 10px 20px;
     border-radius: 50px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px var(--shadow-color);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -80,17 +113,19 @@ button:hover {
 .filter-container select {
     padding: 5px 10px;
     border-radius: 20px;
-    border: 1px solid #bdc3c7;
+    border: 1px solid var(--border-color);
     font-size: 1rem;
     outline: none;
     cursor: pointer;
     font-family: inherit;
+    background: var(--bg-solid);
+    color: var(--text-main);
 }
 
 #search-filter {
     padding: 5px 10px;
     border-radius: 20px;
-    border: 1px solid #bdc3c7;
+    border: 1px solid var(--border-color);
     font-size: 1rem;
     outline: none;
     font-family: inherit;
@@ -98,11 +133,13 @@ button:hover {
     min-width: 150px;
     box-sizing: border-box;
     max-width: 100%;
+    background: var(--bg-solid);
+    color: var(--text-main);
 }
 
 .shuffle-btn {
     background-color: var(--accent);
-    color: var(--dark);
+    color: #2C3E50;
     border: none;
     border-radius: 50%;
     cursor: pointer;
@@ -111,7 +148,7 @@ button:hover {
     justify-content: center;
     font-size: 1.5rem;
     transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-color);
     padding: 12px 20px;
 }
 
@@ -160,11 +197,18 @@ button:hover {
     justify-content: center;
     align-items: center;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    box-shadow: 0 10px 20px var(--shadow-color);
+    background-color: var(--bg-card);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
     padding: 20px;
     box-sizing: border-box;
     text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.card-face:hover {
+    box-shadow: 0 15px 30px var(--shadow-hover);
 }
 
 .card-front {
@@ -229,7 +273,7 @@ button:hover {
 
 .btn-action {
     background-color: var(--accent);
-    color: var(--dark);
+    color: #2C3E50;
     font-size: 1.2rem;
     padding: 12px 25px;
 }
@@ -245,10 +289,12 @@ button:hover {
 /* --- Quiz Mode --- */
 #quiz-section {
     display: none;
-    background-color: white;
+    background-color: var(--bg-card);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px var(--shadow-color);
 }
 
 .question {
@@ -263,17 +309,21 @@ button:hover {
 }
 
 .option-btn {
-    background-color: var(--light);
-    border: 2px solid #bdc3c7;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
     font-size: 1.5rem;
     padding: 15px;
     border-radius: 10px;
     word-wrap: break-word;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, border-color 0.2s;
 }
 
 .option-btn:hover {
     border-color: var(--secondary);
-    background-color: #e8f8f5;
+    background-color: var(--bg-elevated);
+    transform: scale(1.02);
 }
 
 .correct {
@@ -298,10 +348,12 @@ button:hover {
 /* --- Manage Section --- */
 #manage-section {
     display: none;
-    background-color: white;
+    background-color: var(--bg-card);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px var(--shadow-color);
     text-align: left;
 }
 
@@ -358,13 +410,14 @@ table {
 
 th,
 td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     padding: 8px;
     text-align: left;
 }
 
 th {
-    background-color: var(--light);
+    background-color: var(--bg-solid);
+    color: var(--text-main);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -382,7 +435,9 @@ th {
     flex: 1;
     min-width: 100px;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-solid);
+    color: var(--text-main);
     border-radius: 4px;
     box-sizing: border-box;
     max-width: 100%;
@@ -424,14 +479,16 @@ th {
     flex-wrap: wrap;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
 }
 
 .manage-filter input[type="text"] {
     flex: 1;
     min-width: 120px;
     padding: 7px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-solid);
+    color: var(--text-main);
     border-radius: 6px;
     font-size: 0.9rem;
     font-family: inherit;
@@ -441,13 +498,14 @@ th {
 
 .manage-filter select {
     padding: 7px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-solid);
+    color: var(--text-main);
     border-radius: 6px;
     font-size: 0.9rem;
     font-family: inherit;
     outline: none;
     cursor: pointer;
-    background: white;
 }
 
 .sort-dir-btn {
@@ -498,13 +556,15 @@ th {
 }
 
 .modal {
-    background: white;
+    background: var(--bg-card);
+    backdrop-filter: var(--blur);
     border-radius: 16px;
     padding: 2rem;
     max-width: 380px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 15px 40px var(--shadow-hover);
+    color: var(--text-main);
 }
 
 .modal h3 {
