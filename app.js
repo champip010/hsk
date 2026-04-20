@@ -625,8 +625,62 @@ document.addEventListener("keydown", (e) => {
 });
 
 // Initialize App
-if (localStorage.getItem("hsk_dark_mode") === "true") {
-  document.body.classList.add("dark-theme");
-  document.getElementById("btn-dark-mode").innerText = "☀️ Theme";
+async function initApp() {
+  if (localStorage.getItem("hsk_dark_mode") === "true") {
+    document.body.classList.add("dark-theme");
+    document.getElementById("btn-dark-mode").innerText = "☀️ Theme";
+  }
+
+  if (vocab.length === 0) {
+    const zhElem = document.getElementById("fc-zh");
+    const enElem = document.getElementById("fc-en");
+    if (zhElem) zhElem.innerText = "Loading...";
+    if (enElem) enElem.innerText = "Fetching Complete HSK List ⌛";
+
+    try {
+      const response = await fetch("vocabs/Complete_HSK_1_to_9_Vocabulary.xlsx");
+      const arrayBuffer = await response.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+      const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+      let extractedVocab = [];
+      json.forEach((row) => {
+        const zhKey = Object.keys(row).find((k) => k.toLowerCase().includes("chinese") || k.toLowerCase() === "zh" || k.toLowerCase() === "hanzi");
+        const pyKey = Object.keys(row).find((k) => k.toLowerCase().includes("pinyin") || k.toLowerCase() === "py");
+        const enKey = Object.keys(row).find((k) => k.toLowerCase().includes("english") || k.toLowerCase() === "en" || k.toLowerCase() === "meaning");
+        const hskKey = Object.keys(row).find((k) => k.toLowerCase().includes("hsk") || k.toLowerCase().includes("level"));
+
+        if (row[zhKey] && row[enKey]) {
+          const zhVal = String(row[zhKey]).trim();
+          const enVal = String(row[enKey]).trim();
+          const pyVal = row[pyKey] ? String(row[pyKey]).trim() : "";
+
+          let hskLevel = 1;
+          if (row[hskKey]) {
+            const parsedHsk = parseInt(String(row[hskKey]).replace(/\D/g, ""));
+            if (!isNaN(parsedHsk)) hskLevel = parsedHsk;
+          }
+
+          extractedVocab.push({ zh: zhVal, py: pyVal, en: enVal, hsk: hskLevel });
+        }
+      });
+
+      if (extractedVocab.length > 0) {
+        vocab = extractedVocab;
+        filteredVocab = [...vocab];
+        try {
+          localStorage.setItem("nammon_chinese_vocab", JSON.stringify(vocab));
+        } catch (e) {
+          console.warn("Vocab too large for localStorage, keeping in session memory", e);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load default vocab Excel:", e);
+    }
+  }
+
+  applyFilter();
 }
-applyFilter();
+
+initApp();
