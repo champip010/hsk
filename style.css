@@ -2,9 +2,10 @@
     --primary: #FF6B6B;
     --secondary: #4ECDC4;
     --accent: #FFE66D;
-    
+
     --bg-main: #f4f7f6;
-    --bg-card: rgba(255, 255, 255, 0.85); /* Glassmorphism */
+    --bg-card: rgba(255, 255, 255, 0.85);
+    /* Glassmorphism */
     --bg-solid: #ffffff;
     --bg-elevated: #f8fdfc;
     --text-main: #2C3E50;
@@ -19,7 +20,7 @@ body.dark-theme {
     --primary: #ff5252;
     --secondary: #3aa39b;
     --accent: #FFD166;
-    
+
     --bg-main: #121212;
     --bg-card: rgba(30, 30, 36, 0.85);
     --bg-solid: #1e1e24;
@@ -43,6 +44,13 @@ body {
     align-items: center;
     min-height: 100vh;
     transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.theme-btn-wrapper {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 100;
 }
 
 header {
@@ -641,8 +649,17 @@ th {
 /* ========== Mobile Responsive ========== */
 
 @media (max-width: 600px) {
+    .theme-btn-wrapper {
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+    }
+
     header {
-        padding: 1rem 0;
+        padding: 3.5rem 0 1rem 0;
         margin-bottom: 1rem;
     }
 
@@ -797,7 +814,7 @@ th {
         gap: 8px;
     }
 
-    .manage-controls > div {
+    .manage-controls>div {
         width: 100%;
     }
 
@@ -861,7 +878,8 @@ th {
         font-size: 0.85rem;
     }
 
-    th, td {
+    th,
+    td {
         padding: 6px 5px;
     }
 }

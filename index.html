@@ -11,7 +11,7 @@
 
 <body>
 
-    <div style="position: absolute; top: 15px; right: 20px; z-index: 100;">
+    <div class="theme-btn-wrapper">
         <button id="btn-dark-mode">🌙 Theme</button>
     </div>
 
@@ -65,9 +65,10 @@
                 <button class="btn-audio" title="Listen">🔊</button>
                 <button class="btn-action" title="Right Arrow">Next ➡️</button>
             </div>
-            <div class="toggle-container" style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+            <div class="toggle-container"
+                style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;">
                 <label style="cursor:pointer; display:flex; align-items:center; gap: 8px; font-weight: bold;">
-                    <input type="checkbox" id="hide-pinyin-toggle"> 
+                    <input type="checkbox" id="hide-pinyin-toggle">
                     Hide Pinyin
                 </label>
             </div>
@@ -79,7 +80,8 @@
                     style="color: var(--primary); font-size: 3rem;"></span> ?</h2>
             <div class="options-grid" id="options-grid"></div>
             <div id="score-display">Score: <span id="score-val">0</span></div>
-            <button class="btn-action" style="margin-top: 2rem; display: none;" id="next-quiz-btn">Next Question ➡️</button>
+            <button class="btn-action" style="margin-top: 2rem; display: none;" id="next-quiz-btn">Next Question
+                ➡️</button>
         </div>
 
         <!-- Manage Section -->
@@ -90,8 +92,7 @@
                 style="display:none; padding: 10px; margin-bottom: 10px; border-radius: 5px; color: white; font-weight: bold; text-align: center;">
             </div>
 
-            <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv"
-                style="display: none;">
+            <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" style="display: none;">
             <div class="manage-controls">
                 <button class="file-upload-btn">📥 Import Excel</button>
                 <button class="export-btn">💾 Export Excel</button>
